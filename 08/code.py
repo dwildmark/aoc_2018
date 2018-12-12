@@ -32,6 +32,21 @@ def get_metadata_sum(node):
 
     return sum
 
+def get_node_value(node):
+    sum = 0
+    if node["children"]:
+        for metadata in node["metadata"]:
+            if metadata - 1 >= 0 and metadata - 1 < len(node["children"]):
+                sum += get_node_value(node["children"][metadata - 1])
+    else:
+        for metadata in node["metadata"]:
+            sum += metadata
+
+    return sum
+
+
+
+
 def part_one():
     node_descriptors = parse_input_to_list()
     tree = process_node(node_descriptors)
@@ -39,5 +54,10 @@ def part_one():
     print get_metadata_sum(tree)
 
 
+def part_two():
+    node_descriptors = parse_input_to_list()
+    tree = process_node(node_descriptors)
+    print get_node_value(tree)
 
 part_one()
+part_two()
