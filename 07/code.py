@@ -1,3 +1,5 @@
+import string
+
 def parse_instructions():
     instruction_set = dict()
     with open("input.txt", "r") as file:
@@ -32,6 +34,10 @@ def execute_instruction(instr, queued_instr):
         if instr["tag"] in i["requirements"]:
             i["requirements"].remove(instr["tag"])
 
+def get_job_time(job):
+    index = string.ascii_uppercase.index(job["tag"])
+    return 60 + index + 1
+
 
 def part_one():
     queued_instructions = parse_instructions()
@@ -48,4 +54,54 @@ def part_one():
 
     print executed_instructions
 
+
+def part_two():
+    worker_pool = [
+        dict(time_left =  0, current_work = dict()),
+        dict(time_left =  0, current_work = dict()),
+        dict(time_left =  0, current_work = dict()),
+        dict(time_left =  0, current_work = dict()),
+        dict(time_left =  0, current_work = dict())]
+
+    busy_workers = []
+
+    q_instr = parse_instructions()
+    ip_instr = []
+    a_instr = []
+    e_instr = []
+
+    seconds = 0
+
+
+
+    while True:
+        for worker in busy_workers[:]:
+            if worker["time_left"] == 0:
+                print "Worker", worker, "done with job"
+                busy_workers.remove(worker)
+                execute_instruction(worker["current_work"], q_instr)
+                worker["current_work"] = dict()
+                worker_pool.append(worker)
+
+
+        get_available_instructions(q_instr, a_instr)
+        a_instr.sort()
+        while a_instr and worker_pool:
+            worker = worker_pool.pop()
+            job = a_instr.pop(0)
+            worker["time_left"] = get_job_time(job)
+            worker["current_work"] = job
+            busy_workers.append(worker)
+
+        for worker in busy_workers:
+            worker["time_left"] -= 1
+
+        if not busy_workers and not a_instr:
+            print "Part two took", seconds, "seconds."
+            return
+        seconds += 1
+
+
 part_one()
+part_two()
+
